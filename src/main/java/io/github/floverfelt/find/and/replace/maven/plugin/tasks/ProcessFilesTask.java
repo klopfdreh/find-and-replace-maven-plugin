@@ -32,6 +32,7 @@ public class ProcessFilesTask {
    *
    * @param log                   the maven-plugin log
    * @param baseDir               the directory to start in
+   * @param skipOnMissingBaseDir  skips the processing of a missing baseDir without any errors
    * @param isRecursive           whether to recurse further
    * @param findRegex             the regex to find
    * @param replaceValue          the value to replace the found regex
@@ -42,13 +43,18 @@ public class ProcessFilesTask {
    * @param processDirectoryNames whether to process directory names
    * @param charset               encoding to be used when reading files
    */
-  public static void process(Log log, Path baseDir, boolean isRecursive, Pattern findRegex, String replaceValue,
+  public static void process(Log log, Path baseDir, boolean skipOnMissingBaseDir, boolean isRecursive, Pattern findRegex, String replaceValue,
                              List<String> fileMasks, List<Pattern> exclusions, boolean processFileContents,
                              boolean processFilenames, boolean processDirectoryNames, boolean replaceAll, Charset charset) throws IOException {
 
     // Load in the files in the base dir
     File[] baseDirFiles = new File(baseDir.toUri()).listFiles();
     if (baseDirFiles == null) {
+      // Skips the processing of a missing baseDir without any errors
+      if(skipOnMissingBaseDir) {
+        log.info(String.format("Skip the processing of baseDir='%s' as skipOnMissingBaseDir is set to 'true'.", baseDir));
+        return;
+      }
       throw new IOException(String.format("Unable to list file(s) in baseDir='%s'", baseDir));
     }
     List<File> filesToProcess = new ArrayList<>(Arrays.asList(baseDirFiles));

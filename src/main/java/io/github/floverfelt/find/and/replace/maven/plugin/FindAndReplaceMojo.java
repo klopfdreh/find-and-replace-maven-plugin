@@ -37,6 +37,14 @@ public class FindAndReplaceMojo extends AbstractMojo {
   private String baseDir;
 
   /**
+   * Skips the processing if the base dir does not exist without an error.
+   *
+   * @parameter skipOnMissingBaseDir
+   */
+  @Parameter(property = "skipOnMissingBaseDir", defaultValue = "false")
+  private boolean skipOnMissingBaseDir;
+
+  /**
    * Whether the find and replace is recursive from the baseDir.
    *
    * @parameter recursive
@@ -153,7 +161,7 @@ public class FindAndReplaceMojo extends AbstractMojo {
     getLog().info("Executing find-and-replace maven plugin with options: " + this.toString());
 
     try {
-      ProcessFilesTask.process(getLog(), baseDirPath, recursive, Pattern.compile(findRegex), replaceValue, fileMaskList,
+      ProcessFilesTask.process(getLog(), baseDirPath, skipOnMissingBaseDir, recursive, Pattern.compile(findRegex), replaceValue, fileMaskList,
           exclusionsList, processFileContents, processFilenames, processDirectoryNames, replaceAll, charset);
     } catch (Exception e) {
       throw new MojoFailureException("Unable to process files.", e);
@@ -256,6 +264,7 @@ public class FindAndReplaceMojo extends AbstractMojo {
   public String toString() {
     final StringBuilder sb = new StringBuilder("FindAndReplaceMojo{");
     sb.append("baseDir='").append(baseDir).append('\'');
+    sb.append(", skipOnMissingBaseDir='").append(skipOnMissingBaseDir).append('\'');
     sb.append(", recursive=").append(recursive);
     sb.append(", replacementType='").append(replacementType).append('\'');
     sb.append(", findRegex='").append(findRegex).append('\'');
